@@ -8,4 +8,4 @@ Information about this project:
 - Gallery features of test images were stored in database (sqlite) which is excluded
 
 Inference Process Flow:
-![image](https://user-images.githubusercontent.com/39640791/113480753-8f17be00-94c8-11eb-8eee-e942f99cc07b.png)
+![image](https://user-images.githubusercontent.com/39640791/113481779-23385400-94ce-11eb-8b09-11b14f64203c.png)
