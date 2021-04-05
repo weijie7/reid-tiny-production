@@ -36,6 +36,7 @@ class Config(DefaultConfig):
         self.RERANKING = False
         self.QUERY_DIR = '../resource/market1501/query'
         self.GALLERY_DIR = '../resource/market1501/bounding_box_test'
+        self.THRESHOLD = 0.55
 
 
 # class Config(DefaultConfig):

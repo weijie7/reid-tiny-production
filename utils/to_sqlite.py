@@ -1,5 +1,7 @@
 import sqlite3
 from sqlite3 import Error
+import pickle
+import torch
 
 
 def insert_vector_db(img_id, image_path, img, feat_vec):
@@ -12,8 +14,8 @@ def insert_vector_db(img_id, image_path, img, feat_vec):
             VALUES (?,?,?,?)
             """
 
-        multi_record = list(zip(img_id, image_path, img, feat_vec))
-        Query = cursor.executemany(Query, multi_record)
+        array = (img_id, image_path, img, feat_vec)
+        Query = cursor.execute(Query, array)
         sqliteConnection.commit()
 
         cursor.close()
@@ -33,8 +35,8 @@ def insert_human_db(img_id, human_id):
             VALUES (?,?)
             """
 
-        multi_record = list(zip(img_id, human_id))
-        Query = cursor.executemany(Query, multi_record)
+        array = (img_id, human_id)
+        Query = cursor.execute(Query, array)
         sqliteConnection.commit()
 
         cursor.close()
@@ -63,3 +65,55 @@ def insert_infer_db(record):
         
     except Error as err:
         print("Connection error to inference table", err)
+
+
+def unpickle_blob(blob):
+    if type(blob) is list:
+        return torch.cat(list((pickle.loads(bob) for bob in blob)), dim=0)
+        
+    else:
+        return pickle.loads(blob)
+
+
+
+def load_gallery_from_db():
+    try:
+        sqliteConnection = sqlite3.connect('reid_db.db')
+        cursor = sqliteConnection.cursor()
+
+        cursor.execute("select img_path, vector_tensor from vectorkb_table")
+        result = cursor.fetchall()
+        img_path =list(list(zip(*result))[0])
+        gal_feat = unpickle_blob(list(list(zip(*result))[1]))
+
+        cursor.close()
+        sqliteConnection.close()
+        return img_path, gal_feat
+
+    except Error as err:
+        print("Connection error to Sql", err)
+
+
+def load_human_db():
+    try:
+        sqliteConnection = sqlite3.connect('reid_db.db')
+        cursor = sqliteConnection.cursor()
+
+        cursor.execute("select img_id, human_id from human_table")
+        result = cursor.fetchall()
+        human_dict = dict(result)
+
+        cursor.close()
+        sqliteConnection.close()
+        return human_dict
+
+    except Error as err:
+        print("Connection error to Sql", err)
+
+
+def convertToBinaryData(filename):
+    with open(filename, 'rb') as file:
+        blobData = file.read()
+    return blobData
+
+
